@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and Test Case Generator</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff; 
+            color: #333; 
+            margin: 0;
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        input, textarea, button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            border: none;
+        }
+
+        button {
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3498db;
+        }
+
+        #preview {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #responseArea {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #ecf0f1;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #2980b9;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .preview-image {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Upload and Test Case Generator</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div>
+            <label for="images">Select multiple images:</label>
+            <input type="file" id="images" name="images" accept="image/*" multiple required>
+        </div>
+        <div id="preview"></div>
+        <div>
+            <label for="text_input">Optional text:</label>
+            <textarea id="text_input" name="text_input" rows="4"></textarea>
+        </div>
+        <button type="submit">Generate Test Cases</button>
+    </form>
+
+    <div id="responseArea"></div>
+
+    <script>
+        const imagesInput = document.getElementById('images');
+        const previewDiv = document.getElementById('preview');
+
+        imagesInput.addEventListener('change', (event) => {
+            previewDiv.innerHTML = ''; 
+            const files = event.target.files;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = e.target.result;
+                    imgElement.classList.add('preview-image');
+                    previewDiv.appendChild(imgElement);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const responseArea = document.getElementById('responseArea');
+
+            try {
+                responseArea.innerHTML = 'Generating test cases...';
+                const response = await fetch('/', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.text();
+                responseArea.innerHTML = result;
+            } catch (error) {
+                console.error('Error:', error);
+                responseArea.textContent = 'An error occurred during processing.';
+            }
+        });
+    </script>
+</body>
+</html>
